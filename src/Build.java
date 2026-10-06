@@ -45,7 +45,25 @@ public class Build {
    * @return the longest reachable word, or an empty string if the vertex is null
    */
   public static String longestWord(Vertex<String> vertex) {
-    return "";
+    return longestWord(vertex, new HashSet<>());
+  }
+  private static String longestWord(Vertex<String> current, Set<Vertex<String>> visited){
+    if (current == null || visited.contains(current)) return "";
+    visited.add(current);
+
+    String longest;
+    if (current.data == null) longest = "";
+    else { 
+      longest = current.data;
+    }
+
+    for (Vertex<String> neighbor : current.neighbors) {
+        String word = longestWord(neighbor, visited);
+        if (word.length() > longest.length()) {
+            longest = word;
+        }
+    }
+    return longest;
   }
 
   /**
@@ -56,6 +74,20 @@ public class Build {
    * @param <T> the type of values stored in the vertices
    */
   public static <T> void printSelfLoopers(Vertex<T> vertex) {
+    printSelfLoopers(vertex, new HashSet<>());
+}
+
+private static <T> void printSelfLoopers(Vertex<T> current, Set<Vertex<T>> visited) {
+    if (current == null || visited.contains(current)) return;
+    visited.add(current);
+
+    if (current.neighbors.contains(current)) {
+        System.out.println(current.data);
+    }
+
+    for (Vertex<T> neighbor : current.neighbors) {
+        printSelfLoopers(neighbor, visited);
+    }
   }
 
   /**
