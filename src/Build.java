@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,8 +100,39 @@ private static <T> void printSelfLoopers(Vertex<T> current, Set<Vertex<T>> visit
    * @return true if the destination is reachable from the start, false otherwise
    */
   public static boolean canReach(Airport start, Airport destination) {
+    if (start == null || destination == null) {
+      return false;
+    }
+
+    if (start == destination) {
+      return true;
+    }
+
+    Set<Airport> visited = new HashSet<>();
+    return canReach(start, destination, visited);
+  }
+
+  private static boolean canReach(Airport current, Airport destination,
+                                  Set<Airport> visited) {
+    if (current == null || visited.contains(current)) {
+      return false;
+    }
+
+    if (current == destination) {
+      return true;
+    }
+
+    visited.add(current);
+
+    for (Airport next : current.getOutboundFlights()) {
+      if (canReach(next, destination, visited)) {
+        return true;
+      }
+    }
+
     return false;
   }
+  
 
   /**
    * Returns the set of all values in the graph that cannot be reached from the given starting value.
@@ -112,6 +144,27 @@ private static <T> void printSelfLoopers(Vertex<T> current, Set<Vertex<T>> visit
    * @return a set of values that cannot be reached from the starting value
    */
   public static <T> Set<T> unreachable(Map<T, List<T>> graph, T starting) {
-    return new HashSet<>();
+    Set<T> visited = new HashSet<>();
+
+    visit(graph, starting, visited);
+
+    Set<T> result = new HashSet<>(graph.keySet());
+    result.removeAll(visited);
+
+    return result;
+  }
+
+  private static <T> void visit(Map<T, List<T>> graph,
+                              T current,
+                              Set<T> visited) {
+    if (current == null || visited.contains(current)) {
+      return;
+    }
+
+    visited.add(current);
+
+    for (T neighbor : graph.getOrDefault(current, new ArrayList<>())) {
+      visit(graph, neighbor, visited);
+    }
   }
 }
